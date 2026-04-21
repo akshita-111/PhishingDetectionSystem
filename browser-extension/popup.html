@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 300px;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+    }
+    .status {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .status.active {
+      color: green;
+    }
+    .status.inactive {
+      color: red;
+    }
+    .url-check {
+      margin-bottom: 15px;
+    }
+    input[type="url"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 8px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    .result {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 4px;
+      display: none;
+    }
+    .result.safe {
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+    .result.phishing {
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+    .result.error {
+      background-color: #fff3cd;
+      border: 1px solid #ffeaa7;
+      color: #856404;
+    }
+    .loading {
+      text-align: center;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="status" id="status">
+    <div id="statusText">Checking service...</div>
+  </div>
+
+  <div class="url-check">
+    <input type="url" id="urlInput" placeholder="Enter URL to check">
+    <button id="checkButton">Check URL</button>
+  </div>
+
+  <div id="loading" class="loading">
+    Analyzing...
+  </div>
+
+  <div id="result" class="result">
+    <div id="resultText"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

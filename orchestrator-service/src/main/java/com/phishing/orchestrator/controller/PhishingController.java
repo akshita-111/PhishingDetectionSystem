@@ -3,7 +3,7 @@ package com.phishing.orchestrator.controller;
 import com.phishing.orchestrator.dto.PredictionResponse;
 import com.phishing.orchestrator.dto.UrlRequest;
 import com.phishing.orchestrator.service.DetectionService;
-import jakarta.validation.Valid;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
