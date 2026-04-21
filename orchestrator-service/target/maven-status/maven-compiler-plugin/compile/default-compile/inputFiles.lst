@@ -1,9 +1,0 @@
-D:\phishing detector\orchestrator-service\src\main\java\com\phishing\orchestrator\model\DetectionRecord.java
-D:\phishing detector\orchestrator-service\src\main\java\com\phishing\orchestrator\dto\UrlRequest.java
-D:\phishing detector\orchestrator-service\src\main\java\com\phishing\orchestrator\config\RestTemplateConfig.java
-D:\phishing detector\orchestrator-service\src\main\java\com\phishing\orchestrator\repository\DetectionRecordRepository.java
-D:\phishing detector\orchestrator-service\src\main\java\com\phishing\orchestrator\config\CorsConfig.java
-D:\phishing detector\orchestrator-service\src\main\java\com\phishing\orchestrator\dto\PredictionResponse.java
-D:\phishing detector\orchestrator-service\src\main\java\com\phishing\orchestrator\controller\PhishingController.java
-D:\phishing detector\orchestrator-service\src\main\java\com\phishing\orchestrator\OrchestratorApplication.java
-D:\phishing detector\orchestrator-service\src\main\java\com\phishing\orchestrator\service\DetectionService.java
