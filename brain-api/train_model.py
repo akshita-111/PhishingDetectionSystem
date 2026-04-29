@@ -8,70 +8,109 @@ import joblib
 import os
 from app.features import extract_features
 
-def generate_sample_data():
-    """Generate sample phishing and legitimate URLs for training"""
+"""
+🧠 PHISHING DETECTION MODEL TRAINING
+
+📊 RECOMMENDED KAGGLE DATASET:
+   "Phishing Website Detection" by Eswar Chandt
+   Link: https://www.kaggle.com/datasets/eswarchandt/phishing-website-detection
+   Size: ~88,000 samples
+   
+📝 DATASET CITATION (APA Format):
+   Chandt, E. (2022). Phishing Website Detection [Dataset]. 
+   Kaggle. Retrieved from https://www.kaggle.com/datasets/eswarchandt/phishing-website-detection
+
+📦 ALTERNATIVE DATASETS:
+   - URL Phishing Detection (11,000 samples)
+   - Phishing Domain Detection (6,000+ samples)
+   - Search Kaggle for more recent datasets
+
+⚙️  USAGE:
+   python train_model.py                              # Uses data/phishing_dataset.csv
+   python train_model.py "path/to/your/dataset.csv"  # Uses custom path
+"""
+
+def load_kaggle_dataset(dataset_path='data/phishing_dataset.csv'):
+    """
+    Load training data from Kaggle dataset CSV file
     
-    # Sample legitimate URLs
-    legitimate_urls = [
-        "https://www.google.com",
-        "https://github.com/login",
-        "https://www.amazon.com",
-        "https://www.facebook.com",
-        "https://www.linkedin.com",
-        "https://stackoverflow.com/questions",
-        "https://www.youtube.com/watch",
-        "https://www.twitter.com",
-        "https://www.reddit.com",
-        "https://www.wikipedia.org/wiki",
-        "https://mail.google.com",
-        "https://drive.google.com",
-        "https://docs.microsoft.com",
-        "https://developer.mozilla.org",
-        "https://pypi.org/project"
-    ]
+    📥 SETUP INSTRUCTIONS:
+    1. Download a phishing dataset from Kaggle:
+       - Visit: https://www.kaggle.com/datasets
+       - Search for: "phishing URLs" or "phishing websites"
+       - Popular options:
+         * "Phishing Website Detection" dataset
+         * "URL Phishing Detection Dataset"
     
-    # Sample phishing URLs (these are patterns commonly found in phishing)
-    phishing_urls = [
-        "http://192.168.1.1/login.html",
-        "http://bit.ly/3xY7zK2",
-        "https://secure-account-update.tk",
-        "http://paypal-security.ml/ga",
-        "https://verify-your-account.cf",
-        "http://admin@facebook.com/login",
-        "http://amazon-update-security.tk",
-        "https://bank-verification.ml",
-        "http://click-here-now.ga",
-        "https://urgent-action-required.cf",
-        "http://secure-payment-gateway.tk",
-        "https://account-suspended.ml",
-        "http://verify-identity-now.ga",
-        "https://limited-time-offer.cf",
-        "http://click-to-claim.tk"
-    ]
+    2. Place your CSV file in: brain-api/data/
+       Expected columns in CSV:
+       - 'url' (or 'URL'): The URL to classify
+       - 'label' (or 'class'): 0 for legitimate, 1 for phishing
     
-    # Create more variations by adding common phishing patterns
-    more_phishing = []
-    for url in phishing_urls[:5]:
-        more_phishing.append(url + "?id=123&token=abc")
-        more_phishing.append(url.replace("http", "https"))
-        more_phishing.append(url + "/login.php")
+    3. Update the dataset_path parameter if your file has a different name
     
-    phishing_urls.extend(more_phishing)
+    Args:
+        dataset_path (str): Path to the CSV file
+        
+    Returns:
+        tuple: (urls, labels)
+    """
     
-    # Create labels
-    urls = legitimate_urls + phishing_urls
-    labels = [0] * len(legitimate_urls) + [1] * len(phishing_urls)
+    # ⚠️  TODO: Update this path with your Kaggle dataset file
+    if not os.path.exists(dataset_path):
+        raise FileNotFoundError(
+            f"❌ Dataset not found at: {dataset_path}\n"
+            f"📁 Please place your Kaggle CSV file there first.\n"
+            f"ℹ️  See function docstring for setup instructions."
+        )
+    
+    print(f"📂 Loading dataset from: {dataset_path}")
+    df = pd.read_csv(dataset_path)
+    
+    # Normalize column names (handle different naming conventions)
+    df.columns = df.columns.str.lower().str.strip()
+    
+    # Find URL column
+    url_col = None
+    for col in ['url', 'link', 'website']:
+        if col in df.columns:
+            url_col = col
+            break
+    
+    if url_col is None:
+        raise ValueError(f"❌ No URL column found. Available columns: {df.columns.tolist()}")
+    
+    # Find label column
+    label_col = None
+    for col in ['label', 'class', 'classification', 'type', 'phishing']:
+        if col in df.columns:
+            label_col = col
+            break
+    
+    if label_col is None:
+        raise ValueError(f"❌ No label column found. Available columns: {df.columns.tolist()}")
+    
+    urls = df[url_col].tolist()
+    labels = df[label_col].tolist()
+    
+    # Ensure labels are 0 or 1
+    labels = [int(1 if x == 1 else 0) for x in labels]
     
     return urls, labels
 
-def train_model():
-    """Train and save the phishing detection model"""
+def train_model(dataset_path='data/phishing_dataset.csv'):
+    """
+    Train and save the phishing detection model using Kaggle dataset
     
-    print("🚀 Starting ML model training...")
+    Args:
+        dataset_path (str): Path to the CSV file containing phishing URLs dataset
+    """
     
-    # Generate training data
-    urls, labels = generate_sample_data()
-    print(f"📊 Generated {len(urls)} training samples")
+    print("🚀 Starting ML model training with real Kaggle dataset...")
+    
+    # Load real dataset from Kaggle
+    urls, labels = load_kaggle_dataset(dataset_path)
+    print(f"📊 Loaded {len(urls)} training samples from Kaggle dataset")
     print(f"   - Legitimate: {sum(1 for l in labels if l == 0)}")
     print(f"   - Phishing: {sum(1 for l in labels if l == 1)}")
     
@@ -154,4 +193,14 @@ def train_model():
     return model, scaler, feature_names
 
 if __name__ == "__main__":
-    train_model()
+    import sys
+    
+    # Check if dataset path is provided as command line argument
+    if len(sys.argv) > 1:
+        dataset_path = sys.argv[1]
+        print(f"📌 Using dataset path from argument: {dataset_path}")
+        train_model(dataset_path)
+    else:
+        print("📌 Using default dataset path: data/phishing_dataset.csv")
+        train_model()
+

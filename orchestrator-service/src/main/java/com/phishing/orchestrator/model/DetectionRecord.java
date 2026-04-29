@@ -27,7 +27,8 @@ public class DetectionRecord {
     private String explanation;
     
     private LocalDateTime timestamp;
-    
+    private String checkSource; // AUTO OR MANUAL 
+   
     private String processingTimeMs;
     
     private String status; // SUCCESS, ERROR, TIMEOUT
