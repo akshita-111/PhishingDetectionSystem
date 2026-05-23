@@ -11,7 +11,6 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 @Builder
 public class UrlRequest {
-    
-    @NotBlank(message = "URL cannot be blank")
     private String url;
+    private String type; // Expected: "AUTO" or "MANUAL"
 }
