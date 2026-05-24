@@ -22,6 +22,7 @@ public class DetectionService {
     private final RestTemplate restTemplate;
     private final DetectionRecordRepository detectionRecordRepository;
 
+
     @Value("${brain.api.url:http://localhost:8000/predict}")
     private String brainApiUrl;
 

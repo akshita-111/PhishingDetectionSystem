@@ -1,7 +1,8 @@
 // Background script for phishing detection
 
-// API endpoint
-const API_URL = 'http://localhost:8080/api/v1/check';
+// Define your Render backend URL here once deployed
+const BACKEND_URL = 'https://YOUR_RENDER_URL.onrender.com';
+const API_URL = `${BACKEND_URL}/api/v1/check`;
 
 // Check if URL is phishing
 async function checkPhishing(url) {

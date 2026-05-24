@@ -1,7 +1,9 @@
 // Popup script
 
-const API_URL = 'http://localhost:8080/api/v1/check';
-const HEALTH_URL = 'http://localhost:8080/api/v1/health';
+// Define your Render backend URL here once deployed
+const BACKEND_URL = 'https://YOUR_RENDER_URL.onrender.com';
+const API_URL = `${BACKEND_URL}/api/v1/check`;
+const HEALTH_URL = `${BACKEND_URL}/api/v1/health`;
 
 // Check service health
 async function checkServiceHealth() {
