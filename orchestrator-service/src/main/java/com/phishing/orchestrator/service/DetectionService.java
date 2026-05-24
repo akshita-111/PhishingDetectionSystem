@@ -24,7 +24,9 @@ public class DetectionService {
     private DetectionRepository repository;
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String PYTHON_API_URL = "http://localhost:8000/predict";
+
+    @Value("${brain.api.url:http://localhost:8000/predict}")
+    private String brainApiUrl;
 
     public DetectionResponse processUrl(UrlRequest request) {
         try {
@@ -34,7 +36,7 @@ public class DetectionService {
             pythonRequest.put("url", request.getUrl());
 
             ResponseEntity<Map> pythonResponse = restTemplate.postForEntity(
-                PYTHON_API_URL, 
+                brainApiUrl, 
                 pythonRequest, 
                 Map.class
             );
