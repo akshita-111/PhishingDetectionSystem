@@ -1,0 +1,14 @@
+{
+  "name": "phishing-detector-frontend",
+  "version": 2,
+  "buildCommand": "echo 'Static site, no build needed'",
+  "env": {
+    "REACT_APP_API_URL": "@api_url"
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
