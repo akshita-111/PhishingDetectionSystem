@@ -1,7 +1,7 @@
 {
   "name": "phishing-detector-frontend",
   "version": 2,
-  "buildCommand": "echo 'Static site, no build needed'",
+  "buildCommand": "node build.js",
   "env": {
     "REACT_APP_API_URL": "@api_url"
   },

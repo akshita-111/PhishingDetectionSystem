@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 
 @Service
@@ -22,6 +23,18 @@ public class DetectionService {
 
     @Value("${brain.api.url:http://localhost:8000/predict}")
     private String brainApiUrl;
+
+    @PostConstruct
+    public void init() {
+        if (brainApiUrl != null && !brainApiUrl.endsWith("/predict")) {
+            if (brainApiUrl.endsWith("/")) {
+                brainApiUrl = brainApiUrl + "predict";
+            } else {
+                brainApiUrl = brainApiUrl + "/predict";
+            }
+        }
+        log.info("Initialized brain API URL to: {}", brainApiUrl);
+    }
 
     public PredictionResponse detectPhishing(UrlRequest urlRequest) {
         log.info("Starting phishing detection for URL: {}", urlRequest.getUrl());

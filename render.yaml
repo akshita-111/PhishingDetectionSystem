@@ -19,18 +19,10 @@ services:
     startCommand: java -jar target/*.jar
     envVars:
       - key: MONGODB_URI
-        # IMPORTANT: Replace this with your actual MongoDB Atlas connection string in the Render Dashboard
-        value: mongodb+srv://YOUR_USER:YOUR_PASS@your-cluster.mongodb.net/phishing_detection?retryWrites=true&w=majority
+        sync: false
       - key: BRAIN_API_URL
-        # This uses Render's internal URL feature to automatically link to the Python service
+        # Automatically link the Python service's URL to the Java service
         fromService:
           type: web
           name: brain-api
           envVarKey: RENDER_EXTERNAL_URL
-        # Note: We append /predict to the base URL in the application logic or here. 
-        # Actually, Render external URL gives the base URL. We should just let Render inject the base URL and we'll have to make sure the app handles it.
-        # Wait, the application.yml expects the FULL URL (including /predict).
-        # We can just leave it to the user to configure manually in dashboard if this is tricky, or just set it manually.
-        # It's easier if we just tell the user to set BRAIN_API_URL in the dashboard.
-        # Let's remove the fromService and just provide a placeholder.
-        value: https://your-brain-api-url.onrender.com/predict

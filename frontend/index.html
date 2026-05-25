@@ -136,7 +136,7 @@
         // Configure API endpoint
         // For local development: http://localhost:8080
         // For production: Update with your Render URL
-        const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+        const API_BASE_URL = 'http://localhost:8080';
         const API_ENDPOINT = `${API_BASE_URL}/api/v1/check`;
 
         document.getElementById('phishingForm').addEventListener('submit', async function(e) {
