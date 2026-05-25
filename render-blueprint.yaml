@@ -3,6 +3,7 @@ services:
   - type: web
     name: brain-api
     env: python
+    plan: free
     rootDir: brain-api
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
@@ -14,6 +15,7 @@ services:
   - type: web
     name: orchestrator-service
     env: java
+    plan: free
     rootDir: orchestrator-service
     buildCommand: mvn clean package -DskipTests
     startCommand: java -jar target/*.jar
