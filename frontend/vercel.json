@@ -2,9 +2,7 @@
   "name": "phishing-detector-frontend",
   "version": 2,
   "buildCommand": "node build.js",
-  "env": {
-    "REACT_APP_API_URL": "@api_url"
-  },
+
   "routes": [
     {
       "src": "/(.*)",
