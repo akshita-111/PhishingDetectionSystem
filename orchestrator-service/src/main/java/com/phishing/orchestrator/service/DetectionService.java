@@ -10,59 +10,92 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
+import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
-import java.time.Duration;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Service
 public class DetectionService {
 
-    @Autowired
-    private DetectionRepository repository;
-
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
+    private final DetectionRecordRepository detectionRecordRepository;
 
     @Value("${brain.api.url:http://localhost:8000/predict}")
     private String brainApiUrl;
 
-    public DetectionResponse processUrl(UrlRequest request) {
+    @PostConstruct
+    public void init() {
+        if (brainApiUrl != null && !brainApiUrl.endsWith("/predict")) {
+            if (brainApiUrl.endsWith("/")) {
+                brainApiUrl = brainApiUrl + "predict";
+            } else {
+                brainApiUrl = brainApiUrl + "/predict";
+            }
+        }
+        log.info("Initialized brain API URL to: {}", brainApiUrl);
+    }
+
+    public PredictionResponse detectPhishing(UrlRequest urlRequest) {
+        log.info("Starting phishing detection for URL: {}", urlRequest.getUrl());
+        long startTime = System.currentTimeMillis();
+        
         try {
-            // 1. Talk to Python Brain-API
-            // We wrap the URL in a simple Map to send as JSON
-            Map<String, String> pythonRequest = new HashMap<>();
-            pythonRequest.put("url", request.getUrl());
-
-            ResponseEntity<Map> pythonResponse = restTemplate.postForEntity(
-                brainApiUrl, 
-                pythonRequest, 
-                Map.class
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<UrlRequest> entity = new HttpEntity<>(urlRequest, headers);
+            
+            log.info("Calling brain API at: {}", brainApiUrl);
+            ResponseEntity<PredictionResponse> response = restTemplate.exchange(
+                brainApiUrl,
+                HttpMethod.POST,
+                entity,
+                PredictionResponse.class
             );
-
-            Map<String, Object> body = pythonResponse.getBody();
-
-            // 2. Extract Result from Python
-            String result = (Boolean) body.get("is_phishing") ? "PHISHING" : "SAFE";
-            double confidence = (Double) body.get("confidence");
-
-            // 3. Save to Mongo with request.getType() (AUTO/MANUAL)
-            DetectionRecord record = new DetectionRecord();
-            record.setUrl(request.getUrl());
-            record.setResult(result);
-            record.setConfidence(confidence);
-            record.setCheckSource(request.getType()); // This tracks AUTO vs MANUAL
-            record.setTimestamp(LocalDateTime.now());
-
-            repository.save(record);
-
-            // 4. Return to Extension
-            return new DetectionResponse(result, confidence, "Analysis complete via " + request.getType() + " mode.");
-
+            
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                PredictionResponse prediction = response.getBody();
+                long processingTime = System.currentTimeMillis() - startTime;
+                
+                DetectionRecord record = DetectionRecord.builder()
+                    .url(urlRequest.getUrl())
+                    .isPhishing(prediction.isPhishing())
+                    .confidence(prediction.getConfidence())
+                    .explanation(prediction.getExplanation())
+                    .timestamp(LocalDateTime.now())
+                    .processingTimeMs(String.valueOf(processingTime))
+                    .status("SUCCESS")
+                    .build();
+                
+                detectionRecordRepository.save(record);
+                log.info("Detection record saved successfully");
+                return prediction;
+            } else {
+                throw new RuntimeException("Invalid response from brain API");
+            }
+            
         } catch (Exception e) {
-            // Graceful error handling if Python API is down
-            return new DetectionResponse("ERROR", 0.0, "Brain-API is unreachable: " + e.getMessage());
+            long processingTime = System.currentTimeMillis() - startTime;
+            log.error("Error during phishing detection: {}", e.getMessage());
+            
+            DetectionRecord errorRecord = DetectionRecord.builder()
+                .url(urlRequest.getUrl())
+                .isPhishing(false)
+                .confidence(0.0)
+                .explanation("Error occurred during detection")
+                .timestamp(LocalDateTime.now())
+                .processingTimeMs(String.valueOf(processingTime))
+                .status("ERROR")
+                .errorMessage(e.getMessage())
+                .build();
+            
+            detectionRecordRepository.save(errorRecord);
+            
+            return PredictionResponse.builder()
+                .isPhishing(false)
+                .confidence(0.0)
+                .explanation("Detection service temporarily unavailable")
+                .build();
         }
     }
 }
