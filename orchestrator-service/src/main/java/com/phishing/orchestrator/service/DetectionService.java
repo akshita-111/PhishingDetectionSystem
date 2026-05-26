@@ -57,18 +57,22 @@ public class DetectionService {
                 PredictionResponse prediction = response.getBody();
                 long processingTime = System.currentTimeMillis() - startTime;
                 
-                DetectionRecord record = DetectionRecord.builder()
-                    .url(urlRequest.getUrl())
-                    .isPhishing(prediction.isPhishing())
-                    .confidence(prediction.getConfidence())
-                    .explanation(prediction.getExplanation())
-                    .timestamp(LocalDateTime.now())
-                    .processingTimeMs(String.valueOf(processingTime))
-                    .status("SUCCESS")
-                    .build();
-                
-                detectionRecordRepository.save(record);
-                log.info("Detection record saved successfully");
+                try {
+                    DetectionRecord record = DetectionRecord.builder()
+                        .url(urlRequest.getUrl())
+                        .isPhishing(prediction.isPhishing())
+                        .confidence(prediction.getConfidence())
+                        .explanation(prediction.getExplanation())
+                        .timestamp(LocalDateTime.now())
+                        .processingTimeMs(String.valueOf(processingTime))
+                        .status("SUCCESS")
+                        .build();
+                    
+                    detectionRecordRepository.save(record);
+                    log.info("Detection record saved successfully");
+                } catch (Exception dbEx) {
+                    log.error("Failed to save detection record to MongoDB: {}", dbEx.getMessage());
+                }
                 return prediction;
             } else {
                 throw new RuntimeException("Invalid response from brain API");
@@ -78,23 +82,27 @@ public class DetectionService {
             long processingTime = System.currentTimeMillis() - startTime;
             log.error("Error during phishing detection: {}", e.getMessage());
             
-            DetectionRecord errorRecord = DetectionRecord.builder()
-                .url(urlRequest.getUrl())
-                .isPhishing(false)
-                .confidence(0.0)
-                .explanation("Error occurred during detection")
-                .timestamp(LocalDateTime.now())
-                .processingTimeMs(String.valueOf(processingTime))
-                .status("ERROR")
-                .errorMessage(e.getMessage())
-                .build();
-            
-            detectionRecordRepository.save(errorRecord);
+            try {
+                DetectionRecord errorRecord = DetectionRecord.builder()
+                    .url(urlRequest.getUrl())
+                    .isPhishing(false)
+                    .confidence(0.0)
+                    .explanation("Error occurred during detection")
+                    .timestamp(LocalDateTime.now())
+                    .processingTimeMs(String.valueOf(processingTime))
+                    .status("ERROR")
+                    .errorMessage(e.getMessage())
+                    .build();
+                
+                detectionRecordRepository.save(errorRecord);
+            } catch (Exception dbEx) {
+                log.error("Failed to save error record to MongoDB: {}", dbEx.getMessage());
+            }
             
             return PredictionResponse.builder()
                 .isPhishing(false)
                 .confidence(0.0)
-                .explanation("Detection service temporarily unavailable")
+                .explanation("Detection service temporarily unavailable: " + e.getMessage())
                 .build();
         }
     }
