@@ -56,6 +56,19 @@ def generate_ml_prediction(url: str) -> Dict[str, Any]:
         }
 
 
+@app.on_event("startup")
+def load_ml_model_on_startup():
+    """Attempt to load the ML model at startup so errors are visible early."""
+    try:
+        loaded = ml_model.load_model()
+        if loaded:
+            logger.info("ML model loaded on startup")
+        else:
+            logger.warning("ML model not loaded on startup; falling back to rules")
+    except Exception as e:
+        logger.error(f"Exception while loading ML model on startup: {e}")
+
+
 @app.post("/predict", response_model=PredictionResponse)
 async def predict_phishing(request: URLRequest):
     """

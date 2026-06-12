@@ -12,7 +12,7 @@ spring:
 # Brain API Configuration
 brain:
   api:
-    url: ${BRAIN_API_URL:http://localhost:8000/predict}
+    url: ${BRAIN_API_URL:https://phishingdetectionsystem-qvkp.onrender.com/predict}
 
 # Logging Configuration
 logging:
