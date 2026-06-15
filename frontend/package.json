@@ -1,0 +1,17 @@
+{
+  "name": "phishing-detector-frontend",
+  "version": "1.0.0",
+  "description": "Phishing Detection System - Frontend",
+  "scripts": {
+    "dev": "python -m http.server 3000",
+    "start": "python -m http.server 3000",
+    "build": "node build.js"
+  },
+  "keywords": [
+    "phishing",
+    "detection",
+    "security"
+  ],
+  "author": "Your Team",
+  "license": "MIT"
+}

@@ -1,7 +1,7 @@
 // Background script for phishing detection
 
-// Deployed orchestrator backend URL
-const BACKEND_URL = 'https://orchestrator-services.onrender.com';
+// Load configuration
+const BACKEND_URL = 'https://orchestrator-services.onrender.com'; // Deployed orchestrator service
 const API_URL = `${BACKEND_URL}/api/v1/check`;
 
 // Check if URL is phishing

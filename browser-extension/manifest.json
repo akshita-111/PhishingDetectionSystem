@@ -11,6 +11,7 @@
   ],
   "host_permissions": [
     "http://localhost:8080/*",
+    "https://orchestrator-services.onrender.com/*",
     "https://*.onrender.com/*"
   ],
   "background": {

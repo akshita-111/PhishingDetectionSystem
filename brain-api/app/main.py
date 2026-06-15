@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Dict, Any
 import logging
+from contextlib import asynccontextmanager
 from .features import extract_features
 from .ml_model import ml_model
 
@@ -9,7 +10,27 @@ from .ml_model import ml_model
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Phishing Detection API", version="1.0.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for startup and shutdown events"""
+    # Startup
+    try:
+        loaded = ml_model.load_model()
+        if loaded:
+            logger.info("ML model loaded on startup")
+        else:
+            logger.warning("ML model not loaded on startup; falling back to rules")
+    except Exception as e:
+        logger.error(f"Exception while loading ML model on startup: {e}")
+    
+    yield
+    
+    # Shutdown (if needed)
+    logger.info("Application shutting down")
+
+
+app = FastAPI(title="Phishing Detection API", version="1.0.0", lifespan=lifespan)
 
 
 class URLRequest(BaseModel):
@@ -54,19 +75,6 @@ def generate_ml_prediction(url: str) -> Dict[str, Any]:
             "confidence": risk_score,
             "explanation": "Fallback prediction (ML model error)"
         }
-
-
-@app.on_event("startup")
-def load_ml_model_on_startup():
-    """Attempt to load the ML model at startup so errors are visible early."""
-    try:
-        loaded = ml_model.load_model()
-        if loaded:
-            logger.info("ML model loaded on startup")
-        else:
-            logger.warning("ML model not loaded on startup; falling back to rules")
-    except Exception as e:
-        logger.error(f"Exception while loading ML model on startup: {e}")
 
 
 @app.post("/predict", response_model=PredictionResponse)

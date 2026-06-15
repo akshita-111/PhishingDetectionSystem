@@ -1,7 +1,9 @@
 // Popup script
 
-// Define your Render backend URL here once deployed
-const BACKEND_URL = 'https://orchestrator-services.onrender.com';
+// Define your backend URL here once deployed
+// For local development: 'http://localhost:8080'
+// For production: 'https://orchestrator-services.onrender.com'
+const BACKEND_URL = 'https://orchestrator-services.onrender.com'; // Deployed orchestrator service
 const API_URL = `${BACKEND_URL}/api/v1/check`;
 const HEALTH_URL = `${BACKEND_URL}/api/v1/health`;
 
