@@ -1166,8 +1166,49 @@
 </div>
 
 <script>
-    const API_BASE_URL = 'https://orchestrator-services.onrender.com';
-    const API_ENDPOINT = `${API_BASE_URL}/api/v1/check`;
+    const ORCHESTRATOR_API_URL = 'https://orchestrator-services.onrender.com';
+    const ORCHESTRATOR_ENDPOINT = `${ORCHESTRATOR_API_URL}/api/v1/check`;
+    const BRAIN_API_URL = 'https://phishingdetectionsystem-qvkp.onrender.com';
+    const BRAIN_ENDPOINT = `${BRAIN_API_URL}/predict`;
+
+    async function checkUrlWithFallback(url) {
+        // Try orchestrator service first
+        try {
+            const response = await fetch(ORCHESTRATOR_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url })
+            });
+            if (response.ok) {
+                const data = await response.json();
+                return data;
+            }
+        } catch (err) {
+            console.log('Orchestrator service unavailable, trying brain API directly');
+        }
+
+        // Fallback to brain API directly
+        try {
+            const response = await fetch(BRAIN_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url })
+            });
+            if (response.ok) {
+                const data = await response.json();
+                // Convert brain API response to match orchestrator format
+                return {
+                    isPhishing: data.is_phishing,
+                    confidence: data.confidence,
+                    explanation: data.explanation
+                };
+            }
+        } catch (err) {
+            console.log('Brain API also unavailable');
+        }
+
+        return null;
+    }
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -1183,15 +1224,10 @@
         result.style.display = 'none';
 
         try {
-            const response = await fetch(API_ENDPOINT, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url })
-            });
-            const data = await response.json();
+            const data = await checkUrlWithFallback(url);
             loading.style.display = 'none';
-            if (response.ok) displayResult(data);
-            else displayError(data.explanation || 'An error occurred while checking the URL.');
+            if (data) displayResult(data);
+            else displayError('Both services are currently unavailable. Please try again later.');
         } catch (err) {
             loading.style.display = 'none';
             displayError('Network error. Please check your connection and try again.');
