@@ -17,5 +17,5 @@ ENV PYTHONPATH=/home/user/app
 
 EXPOSE 7860
 
-# Run uvicorn on port 7860 (Hugging Face default)
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "7860"]
+# Run uvicorn on port 7860, fallback to main:app if app folder was flattened during upload
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 7860 || uvicorn main:app --host 0.0.0.0 --port 7860"]

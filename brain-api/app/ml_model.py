@@ -3,7 +3,13 @@ import numpy as np
 import os
 import logging
 from typing import Dict, Any, Optional
-from .features import extract_features
+try:
+    from app.features import extract_features
+except ImportError:
+    try:
+        from .features import extract_features
+    except ImportError:
+        from features import extract_features
 
 logger = logging.getLogger(__name__)
 

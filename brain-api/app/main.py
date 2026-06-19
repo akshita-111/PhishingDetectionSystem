@@ -2,8 +2,16 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Dict, Any
 import logging
-from .features import extract_features
-from .ml_model import ml_model
+try:
+    from app.features import extract_features
+    from app.ml_model import ml_model
+except ImportError:
+    try:
+        from .features import extract_features
+        from .ml_model import ml_model
+    except ImportError:
+        from features import extract_features
+        from ml_model import ml_model
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
