@@ -12,55 +12,87 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
-import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Service
 public class DetectionService {
 
-    @Autowired
-    private DetectionRepository repository;
-
+    private final DetectionRecordRepository repository;
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String PYTHON_API_URL = "http://localhost:8000/predict";
 
-    public DetectionResponse processUrl(UrlRequest request) {
+    @Value("${brain.api.url:http://localhost:8000/predict}")
+    private String pythonApiUrl;
+
+    public PredictionResponse detectPhishing(UrlRequest request) {
         try {
             // 1. Talk to Python Brain-API
-            // We wrap the URL in a simple Map to send as JSON
             Map<String, String> pythonRequest = new HashMap<>();
             pythonRequest.put("url", request.getUrl());
 
             ResponseEntity<Map> pythonResponse = restTemplate.postForEntity(
-                PYTHON_API_URL, 
+                pythonApiUrl, 
                 pythonRequest, 
                 Map.class
             );
 
             Map<String, Object> body = pythonResponse.getBody();
+            if (body == null) {
+                throw new RuntimeException("Empty response body from Brain-API");
+            }
 
             // 2. Extract Result from Python
-            String result = (Boolean) body.get("is_phishing") ? "PHISHING" : "SAFE";
-            double confidence = (Double) body.get("confidence");
+            boolean isPhishing = (Boolean) body.getOrDefault("is_phishing", false);
+            double confidence = ((Number) body.getOrDefault("confidence", 0.0)).doubleValue();
+            String explanation = (String) body.getOrDefault("explanation", "Analysis complete");
 
             // 3. Save to Mongo with request.getType() (AUTO/MANUAL)
-            DetectionRecord record = new DetectionRecord();
-            record.setUrl(request.getUrl());
-            record.setResult(result);
-            record.setConfidence(confidence);
-            record.setCheckSource(request.getType()); // This tracks AUTO vs MANUAL
-            record.setTimestamp(LocalDateTime.now());
+            DetectionRecord record = DetectionRecord.builder()
+                .url(request.getUrl())
+                .isPhishing(isPhishing)
+                .confidence(confidence)
+                .explanation(explanation)
+                .checkSource(request.getType())
+                .timestamp(LocalDateTime.now())
+                .status("SUCCESS")
+                .build();
 
             repository.save(record);
 
-            // 4. Return to Extension
-            return new DetectionResponse(result, confidence, "Analysis complete via " + request.getType() + " mode.");
+            // 4. Return to Controller
+            return PredictionResponse.builder()
+                .isPhishing(isPhishing)
+                .confidence(confidence)
+                .explanation(explanation)
+                .build();
 
         } catch (Exception e) {
-            // Graceful error handling if Python API is down
-            return new DetectionResponse("ERROR", 0.0, "Brain-API is unreachable: " + e.getMessage());
+            log.error("Error during phishing check: {}", e.getMessage(), e);
+            
+            // Save error record to MongoDB
+            try {
+                DetectionRecord errorRecord = DetectionRecord.builder()
+                    .url(request.getUrl())
+                    .isPhishing(false)
+                    .confidence(0.0)
+                    .explanation("Brain-API error: " + e.getMessage())
+                    .checkSource(request.getType())
+                    .timestamp(LocalDateTime.now())
+                    .status("ERROR")
+                    .errorMessage(e.getMessage())
+                    .build();
+                repository.save(errorRecord);
+            } catch (Exception ex) {
+                log.error("Failed to save error record: {}", ex.getMessage());
+            }
+
+            return PredictionResponse.builder()
+                .isPhishing(false)
+                .confidence(0.0)
+                .explanation("Brain-API is unreachable: " + e.getMessage())
+                .build();
         }
     }
 }

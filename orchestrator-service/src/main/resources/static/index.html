@@ -133,6 +133,11 @@
     </div>
 
     <script>
+        // Configure your deployed Render Orchestrator API URL here if hosting the frontend on Vercel:
+        const API_BASE = window.location.hostname.includes('vercel.app')
+            ? 'https://your-orchestrator-service.onrender.com' // <-- REPLACE WITH YOUR RENDER URL
+            : '';
+
         document.getElementById('phishingForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -147,7 +152,7 @@
             result.style.display = 'none';
 
             try {
-                const response = await fetch('/api/v1/check', {
+                const response = await fetch(`${API_BASE}/api/v1/check`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

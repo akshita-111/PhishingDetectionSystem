@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 spring:
   application:
@@ -7,14 +7,12 @@ spring:
   
   data:
     mongodb:
-      host: localhost
-      port: 27017
-      database: phishing_detection
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/phishing_detection}
 
 # Brain API Configuration
 brain:
   api:
-    url: http://localhost:8000/predict
+    url: ${BRAIN_API_URL:http://localhost:8000/predict}
 
 # Logging Configuration
 logging:
