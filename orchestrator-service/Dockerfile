@@ -4,7 +4,11 @@ WORKDIR /app
 COPY pom.xml .
 # Download dependencies to cache them
 RUN mvn dependency:go-offline
-COPY src ./src
+
+# Copy source directory supporting both flat layout (main at root) and nested layout (src/main)
+COPY main* ./src/main/
+COPY src* ./src/
+
 RUN mvn clean package -DskipTests
 
 # Stage 2: Run the application
