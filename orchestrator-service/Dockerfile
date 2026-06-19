@@ -5,9 +5,14 @@ COPY pom.xml .
 # Download dependencies to cache them
 RUN mvn dependency:go-offline
 
-# Copy source directory supporting both flat layout (main at root) and nested layout (src/main)
-COPY main* ./src/main/
+# Copy source directory supporting all possible upload layouts:
+# 1. If 'src' is at the root: copies src/main/java to ./src/main/java
+# 2. If 'main' is at the root: copies main/java to ./src/main/java
+# 3. If 'java' and 'resources' are at the root: copies java to ./src/main/java and resources to ./src/main/resources
 COPY src* ./src/
+COPY main* ./src/main/
+COPY java* ./src/main/java/
+COPY resources* ./src/main/resources/
 
 RUN mvn clean package -DskipTests
 
