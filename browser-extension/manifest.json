@@ -11,8 +11,8 @@
   ],
   "host_permissions": [
     "http://localhost:8080/*",
-    "https://orchestrator-services.onrender.com/*",
-    "https://phishingdetectionsystem-qvkp.onrender.com/*",
+    "https://huggingface.co/spaces/Akshita118/phishing-orchestrator/*",
+    "https://huggingface.co/spaces/Akshita118/brain-api/*",
     "https://*.onrender.com/*"
   ],
   "background": {
