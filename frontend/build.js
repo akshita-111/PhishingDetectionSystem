@@ -12,8 +12,8 @@ const apiUrl = process.env.REACT_APP_API_URL || 'https://orchestrator-services.o
 
 console.log('Injecting API URL:', apiUrl);
 content = content.replace(
-    /const API_BASE_URL = '.*';/,
-    `const API_BASE_URL = '${apiUrl}';`
+    /const ORCHESTRATOR_API_URL = '.*';/,
+    `const ORCHESTRATOR_API_URL = '${apiUrl}';`
 );
 
 // Create public directory and write the file
