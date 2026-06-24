@@ -20,7 +20,7 @@ WORKDIR /app
 # Copy the fat JAR produced by Spring Boot's repackage goal
 COPY --from=builder /app/target/*.jar app.jar
 
-EXPOSE 8080
+EXPOSE 7860
 
 ENTRYPOINT ["java", \
   "-Djava.security.egd=file:/dev/./urandom", \
