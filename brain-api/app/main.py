@@ -2,6 +2,8 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Dict, Any
 import logging
+from contextlib import asynccontextmanager
+
 try:
     from app.features import extract_features
     from app.ml_model import ml_model
@@ -17,7 +19,27 @@ except ImportError:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Phishing Detection API", version="1.0.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for startup and shutdown events"""
+    # Startup
+    try:
+        loaded = ml_model.load_model()
+        if loaded:
+            logger.info("ML model loaded on startup")
+        else:
+            logger.warning("ML model not loaded on startup; falling back to rules")
+    except Exception as e:
+        logger.error(f"Exception while loading ML model on startup: {e}")
+    
+    yield
+    
+    # Shutdown (if needed)
+    logger.info("Application shutting down")
+
+
+app = FastAPI(title="Phishing Detection API", version="1.0.0", lifespan=lifespan)
 
 
 class URLRequest(BaseModel):

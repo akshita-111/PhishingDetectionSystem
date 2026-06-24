@@ -1,12 +1,15 @@
 // Popup script
 
-const API_URL = 'http://localhost:8080/api/v1/check';
-const HEALTH_URL = 'http://localhost:8080/api/v1/health';
+// Define your backend URLs here once deployed
+const ORCHESTRATOR_URL = 'https://akshita118-phishing-orchestrator.hf.space';
+const ORCHESTRATOR_API_URL = `${ORCHESTRATOR_URL}/api/v1/check`;
+const ORCHESTRATOR_HEALTH_URL = `${ORCHESTRATOR_URL}/api/v1/health`;
+const BRAIN_API_URL = 'https://akshita118-brain-api.hf.space/predict';
 
 // Check service health
 async function checkServiceHealth() {
   try {
-    const response = await fetch(HEALTH_URL);
+    const response = await fetch(ORCHESTRATOR_HEALTH_URL);
     return response.ok;
   } catch (error) {
     return false;
@@ -29,10 +32,11 @@ async function updateStatus() {
   }
 }
 
-// Check phishing for a URL
+// Check phishing for a URL with fallback
 async function checkPhishing(url) {
+  // Try orchestrator service first
   try {
-    const response = await fetch(API_URL, {
+    const response = await fetch(ORCHESTRATOR_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -40,16 +44,38 @@ async function checkPhishing(url) {
       body: JSON.stringify({ url: url })
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    if (response.ok) {
+      const data = await response.json();
+      return data;
     }
-
-    const data = await response.json();
-    return data;
   } catch (error) {
-    console.error('Error checking phishing:', error);
-    return { error: error.message };
+    console.log('Orchestrator service unavailable, trying brain API directly');
   }
+
+  // Fallback to brain API directly
+  try {
+    const response = await fetch(BRAIN_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url: url })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      // Convert brain API response to match orchestrator format
+      return {
+        isPhishing: data.is_phishing,
+        confidence: data.confidence,
+        explanation: data.explanation
+      };
+    }
+  } catch (error) {
+    console.log('Brain API also unavailable');
+  }
+
+  return { error: 'Both services are currently unavailable' };
 }
 
 // Display result

@@ -1,24 +1,27 @@
-# Stage 1: Build the application
-FROM maven:3.8.5-openjdk-11-slim AS build
+# Stage 1: Build the application with Maven
+FROM maven:3.9.6-eclipse-temurin-11 AS builder
+
 WORKDIR /app
+
+# Copy pom.xml first and pre-download all dependencies
+# This layer is cached separately so rebuilds are fast
 COPY pom.xml .
-# Download dependencies to cache them
-RUN mvn dependency:go-offline
+RUN mvn dependency:go-offline -B
 
-# Copy source directory supporting all possible upload layouts:
-# 1. If 'src' is at the root: copies src/main/java to ./src/main/java
-# 2. If 'main' is at the root: copies main/java to ./src/main/java
-# 3. If 'java' and 'resources' are at the root: copies java to ./src/main/java and resources to ./src/main/resources
-COPY src* ./src/
-COPY main* ./src/main/
-COPY java* ./src/main/java/
-COPY resources* ./src/main/resources/
-
+# Copy source and build
+COPY src ./src
 RUN mvn clean package -DskipTests
 
-# Stage 2: Run the application
-FROM openjdk:11-jre-slim
+# Stage 2: Run the application (slim image)
+FROM eclipse-temurin:11-jre-alpine
+
 WORKDIR /app
-COPY --from=build /app/target/orchestrator-service-1.0.0.jar app.jar
+
+# Copy the fat JAR produced by Spring Boot's repackage goal
+COPY --from=builder /app/target/*.jar app.jar
+
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+ENTRYPOINT ["java", \
+  "-Djava.security.egd=file:/dev/./urandom", \
+  "-jar", "app.jar"]

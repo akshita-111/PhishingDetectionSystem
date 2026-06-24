@@ -7,12 +7,12 @@ spring:
   
   data:
     mongodb:
-      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/phishing_detection}
+      uri: ${MONGODB_URI:${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/phishing_detection}}
 
 # Brain API Configuration
 brain:
   api:
-    url: ${BRAIN_API_URL:http://localhost:8000/predict}
+    url: ${BRAIN_API_URL:https://akshita118-brain-api.hf.space/predict}
 
 # Logging Configuration
 logging:

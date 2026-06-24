@@ -16,11 +16,15 @@ logger = logging.getLogger(__name__)
 class PhishingMLModel:
     """Machine Learning model for phishing detection"""
     
-    def __init__(self, model_path: str = "models/phishing_model.joblib"):
+    def __init__(self, model_path: str = None):
         self.model = None
         self.scaler = None
         self.feature_names = None
-        self.model_path = model_path
+        # Resolve model paths relative to this file to avoid working-directory issues
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        self.model_path = model_path or os.path.join(base_dir, 'models', 'phishing_model.joblib')
+        self.scaler_path = os.path.join(base_dir, 'models', 'feature_scaler.joblib')
+        self.feature_names_path = os.path.join(base_dir, 'models', 'feature_names.joblib')
         self.is_loaded = False
         
     def load_model(self) -> bool:
@@ -29,11 +33,18 @@ class PhishingMLModel:
             if not os.path.exists(self.model_path):
                 logger.error(f"Model file not found: {self.model_path}")
                 return False
-                
-            # Load model components
+
+            # Load model components from resolved absolute paths
             self.model = joblib.load(self.model_path)
-            self.scaler = joblib.load("models/feature_scaler.joblib")
-            self.feature_names = joblib.load("models/feature_names.joblib")
+            if os.path.exists(self.scaler_path):
+                self.scaler = joblib.load(self.scaler_path)
+            else:
+                logger.warning(f"Scaler file not found: {self.scaler_path}")
+
+            if os.path.exists(self.feature_names_path):
+                self.feature_names = joblib.load(self.feature_names_path)
+            else:
+                logger.warning(f"Feature names file not found: {self.feature_names_path}")
             
             self.is_loaded = True
             logger.info("✅ ML model loaded successfully")

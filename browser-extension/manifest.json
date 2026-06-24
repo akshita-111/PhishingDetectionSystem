@@ -10,7 +10,10 @@
     "storage"
   ],
   "host_permissions": [
-    "http://localhost:8080/*"
+    "http://localhost:8080/*",
+    "https://huggingface.co/spaces/Akshita118/phishing-orchestrator/*",
+    "https://huggingface.co/spaces/Akshita118/brain-api/*",
+    "https://*.onrender.com/*"
   ],
   "background": {
     "service_worker": "background.js"
