@@ -8,7 +8,7 @@ const outPath = path.join(publicDir, 'index.html');
 let content = fs.readFileSync(indexPath, 'utf8');
 
 // Read REACT_APP_API_URL from environment variables, defaulting to deployed endpoint
-const apiUrl = process.env.REACT_APP_API_URL || 'https://orchestrator-services.onrender.com';
+let apiUrl = process.env.REACT_APP_API_URL || 'https://akshita118-phishing-orchestrator.hf.space';
 
 console.log('Injecting API URL:', apiUrl);
 content = content.replace(

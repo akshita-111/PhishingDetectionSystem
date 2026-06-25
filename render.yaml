@@ -1,0 +1,21 @@
+services:
+  # 1. Brain API (Python FastAPI)
+  - type: web
+    name: brain-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    rootDir: brain-api
+    plan: free
+
+  # 2. Orchestrator Service (Java Spring Boot)
+  - type: web
+    name: orchestrator-service
+    env: docker
+    rootDir: orchestrator-service
+    plan: free
+    envVars:
+      - key: SPRING_DATA_MONGODB_URI
+        sync: false # Enter your MongoDB connection URI (e.g., MongoDB Atlas connection string)
+      - key: BRAIN_API_URL
+        sync: false # Enter the URL of the deployed brain-api with /predict (e.g., https://brain-api.onrender.com/predict)

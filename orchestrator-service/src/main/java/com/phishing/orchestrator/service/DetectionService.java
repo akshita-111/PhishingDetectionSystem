@@ -21,7 +21,7 @@ public class DetectionService {
     private final RestTemplate restTemplate;
     private final DetectionRecordRepository detectionRecordRepository;
 
-    @Value("${brain.api.url:http://localhost:8000/predict}")
+    @Value("${brain.api.url:https://akshita118-brain-api.hf.space/predict}")
     private String brainApiUrl;
 
     @PostConstruct
@@ -63,6 +63,7 @@ public class DetectionService {
                         .isPhishing(prediction.isPhishing())
                         .confidence(prediction.getConfidence())
                         .explanation(prediction.getExplanation())
+                        .checkSource(urlRequest.getType())
                         .timestamp(LocalDateTime.now())
                         .processingTimeMs(String.valueOf(processingTime))
                         .status("SUCCESS")
@@ -87,7 +88,8 @@ public class DetectionService {
                     .url(urlRequest.getUrl())
                     .isPhishing(false)
                     .confidence(0.0)
-                    .explanation("Error occurred during detection")
+                    .explanation("Detection service temporarily unavailable: " + e.getMessage())
+                    .checkSource(urlRequest.getType())
                     .timestamp(LocalDateTime.now())
                     .processingTimeMs(String.valueOf(processingTime))
                     .status("ERROR")

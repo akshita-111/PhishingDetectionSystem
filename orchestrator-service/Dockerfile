@@ -1,6 +1,4 @@
-# ─────────────────────────────────────────
 # Stage 1: Build the application with Maven
-# ─────────────────────────────────────────
 FROM maven:3.9.6-eclipse-temurin-11 AS builder
 
 WORKDIR /app
@@ -14,9 +12,7 @@ RUN mvn dependency:go-offline -B
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# ─────────────────────────────────────────
 # Stage 2: Run the application (slim image)
-# ─────────────────────────────────────────
 FROM eclipse-temurin:11-jre-alpine
 
 WORKDIR /app
@@ -24,7 +20,7 @@ WORKDIR /app
 # Copy the fat JAR produced by Spring Boot's repackage goal
 COPY --from=builder /app/target/*.jar app.jar
 
-EXPOSE 8080
+EXPOSE 7860
 
 ENTRYPOINT ["java", \
   "-Djava.security.egd=file:/dev/./urandom", \
