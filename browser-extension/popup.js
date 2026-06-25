@@ -1,10 +1,10 @@
 // Popup script
 
 // Define your backend URLs here once deployed
-const ORCHESTRATOR_URL = 'https://your-orchestrator.onrender.com';
+const ORCHESTRATOR_URL = 'https://orchestrator-services-fy67.onrender.com';
 const ORCHESTRATOR_API_URL = `${ORCHESTRATOR_URL}/api/v1/check`;
 const ORCHESTRATOR_HEALTH_URL = `${ORCHESTRATOR_URL}/api/v1/health`;
-const BRAIN_API_URL = 'https://your-brain-api.onrender.com/predict';
+const BRAIN_API_URL = 'https://brain-api-3pru.onrender.com/predict';
 
 // Check service health
 async function checkServiceHealth() {

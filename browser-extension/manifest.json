@@ -11,8 +11,8 @@
   ],
   "host_permissions": [
     "http://localhost:8080/*",
-    "https://your-orchestrator.onrender.com/*",
-    "https://your-brain-api.onrender.com/*",
+    "https://orchestrator-services-fy67.onrender.com/*",
+    "https://brain-api-3pru.onrender.com/*",
     "https://*.onrender.com/*"
   ],
   "background": {
