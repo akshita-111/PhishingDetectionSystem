@@ -9,9 +9,6 @@ let content = fs.readFileSync(indexPath, 'utf8');
 
 // Read REACT_APP_API_URL from environment variables, defaulting to deployed endpoint
 let apiUrl = process.env.REACT_APP_API_URL || 'https://akshita118-phishing-orchestrator.hf.space';
-if (apiUrl.includes('onrender.com')) {
-    apiUrl = 'https://akshita118-phishing-orchestrator.hf.space';
-}
 
 console.log('Injecting API URL:', apiUrl);
 content = content.replace(
