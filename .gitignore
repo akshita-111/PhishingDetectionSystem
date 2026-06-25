@@ -53,8 +53,6 @@ logs/
 .env.production.local
 
 # Temporary files
-*.tmp
-<<<<<<< HEAD
 *.temp
 
 # Keep project files
@@ -65,6 +63,3 @@ logs/
 !docker-compose.yml
 !README.md
 !.env.example
-=======
-*.temp
->>>>>>> c3b1115ac232f51f11a0de3c91739b041e525869
