@@ -937,6 +937,9 @@
                 <div class="result-title-block">
                     <div id="resultTitle"></div>
                     <div class="result-subtitle" id="resultSubtitle"></div>
+                    <div id="securityWarning" style="display: none; margin-top: 8px; font-size: 12px; color: var(--accent-orange); background: rgba(234, 88, 12, 0.08); border: 1px solid rgba(234, 88, 12, 0.25); padding: 6px 12px; border-radius: 6px; align-items: center; gap: 6px; font-weight: 500;">
+                        <span>⚠️ Insecure Connection: This website uses HTTP (no SSL encryption). Your data is not secure if entered.</span>
+                    </div>
                 </div>
             </div>
             <div class="result-body">
@@ -1226,7 +1229,7 @@
         try {
             const data = await checkUrlWithFallback(url);
             loading.style.display = 'none';
-            if (data) displayResult(data);
+            if (data) displayResult(data, url);
             else displayError('Both services are currently unavailable. Please try again later.');
         } catch (err) {
             loading.style.display = 'none';
@@ -1241,7 +1244,7 @@
         if (e.key === 'Enter') handleSubmit(e);
     });
 
-    function displayResult(data) {
+    function displayResult(data, url) {
         const result = document.getElementById('result');
         const resultIcon = document.getElementById('resultIcon');
         const resultTitle = document.getElementById('resultTitle');
@@ -1249,6 +1252,7 @@
         const confidence = document.getElementById('confidence');
         const confidenceFill = document.getElementById('confidenceFill');
         const explanation = document.getElementById('explanation');
+        const securityWarning = document.getElementById('securityWarning');
 
         const pct = Math.round(data.confidence * 100);
 
@@ -1257,11 +1261,23 @@
             resultIcon.textContent = '⚠️';
             resultTitle.textContent = 'Phishing Detected';
             resultSubtitle.textContent = 'This URL matches known phishing patterns';
+            if (securityWarning) securityWarning.style.display = 'none';
         } else {
             result.className = 'safe';
             resultIcon.textContent = '✅';
             resultTitle.textContent = 'URL Appears Safe';
             resultSubtitle.textContent = 'No phishing indicators detected';
+            
+            // Show HTTP insecurity warning if the site uses http://
+            if (url && url.toLowerCase().startsWith('http://')) {
+                if (securityWarning) {
+                    securityWarning.style.display = 'flex';
+                }
+            } else {
+                if (securityWarning) {
+                    securityWarning.style.display = 'none';
+                }
+            }
         }
 
         confidence.textContent = pct;
