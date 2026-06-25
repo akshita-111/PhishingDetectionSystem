@@ -55,3 +55,12 @@ logs/
 # Temporary files
 *.tmp
 *.temp
+
+# Keep project files
+!brain-api/
+!orchestrator-service/
+!frontend/
+!browser-extension/
+!docker-compose.yml
+!README.md
+!.env.example
