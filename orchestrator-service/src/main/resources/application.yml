@@ -12,7 +12,7 @@ spring:
 # Brain API Configuration
 brain:
   api:
-    url: ${BRAIN_API_URL:https://huggingface.co/spaces/Akshita118/brain-api/predict}
+    url: ${BRAIN_API_URL:https://your-brain-api.onrender.com/predict}
 
 # Logging Configuration
 logging:

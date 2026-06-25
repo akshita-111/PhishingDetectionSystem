@@ -1,9 +1,9 @@
 // Background script for phishing detection
 
 // Load configuration
-const ORCHESTRATOR_URL = 'https://huggingface.co/spaces/Akshita118/phishing-orchestrator';
+const ORCHESTRATOR_URL = 'https://your-orchestrator.onrender.com';
 const ORCHESTRATOR_API_URL = `${ORCHESTRATOR_URL}/api/v1/check`;
-const BRAIN_API_URL = 'https://huggingface.co/spaces/Akshita118/brain-api/predict';
+const BRAIN_API_URL = 'https://your-brain-api.onrender.com/predict';
 
 // Check if URL is phishing with fallback
 async function checkPhishing(url) {
