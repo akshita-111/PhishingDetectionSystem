@@ -403,6 +403,7 @@
         #result.safe    { background: var(--safe-bg);  border-color: var(--safe-border); }
         #result.phishing{ background: var(--phish-bg); border-color: var(--phish-border); }
         #result.error   { background: var(--error-bg); border-color: var(--error-border); }
+        #result.insecure{ background: var(--error-bg); border-color: var(--error-border); }
 
         .result-header {
             padding: 24px 28px 20px;
@@ -425,6 +426,7 @@
         #result.safe     #resultTitle { color: var(--safe-text); }
         #result.phishing #resultTitle { color: var(--phish-text); }
         #result.error    #resultTitle { color: var(--error-text); }
+        #result.insecure #resultTitle { color: var(--error-text); }
 
         .result-subtitle {
             font-size: 13px;
@@ -466,6 +468,7 @@
         #result.safe     .confidence-fill { background: linear-gradient(90deg, #059669, #34d399); }
         #result.phishing .confidence-fill { background: linear-gradient(90deg, #dc2626, #f97316); }
         #result.error    .confidence-fill { background: linear-gradient(90deg, #d97706, #fcd34d); }
+        #result.insecure .confidence-fill { background: linear-gradient(90deg, #ea580c, #fcd34d); }
 
         #explanation {
             font-size: 14px;
@@ -1258,26 +1261,22 @@
 
         if (data.isPhishing) {
             result.className = 'phishing';
-            resultIcon.textContent = '⚠️';
+            resultIcon.textContent = '❌';
             resultTitle.textContent = 'Phishing Detected';
             resultSubtitle.textContent = 'This URL matches known phishing patterns';
             if (securityWarning) securityWarning.style.display = 'none';
+        } else if (url && url.toLowerCase().startsWith('http://')) {
+            result.className = 'insecure';
+            resultIcon.textContent = '❌';
+            resultTitle.textContent = 'URL Not Secure';
+            resultSubtitle.textContent = 'Insecure HTTP connection';
+            if (securityWarning) securityWarning.style.display = 'flex';
         } else {
             result.className = 'safe';
             resultIcon.textContent = '✅';
             resultTitle.textContent = 'URL Appears Safe';
             resultSubtitle.textContent = 'No phishing indicators detected';
-            
-            // Show HTTP insecurity warning if the site uses http://
-            if (url && url.toLowerCase().startsWith('http://')) {
-                if (securityWarning) {
-                    securityWarning.style.display = 'flex';
-                }
-            } else {
-                if (securityWarning) {
-                    securityWarning.style.display = 'none';
-                }
-            }
+            if (securityWarning) securityWarning.style.display = 'none';
         }
 
         confidence.textContent = pct;
