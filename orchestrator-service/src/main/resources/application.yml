@@ -1,0 +1,21 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: orchestrator-service
+  
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/phishing_detection}
+
+# Brain API Configuration
+brain:
+  api:
+    url: ${BRAIN_API_URL:https://brain-api-3pru.onrender.com/predict}
+
+# Logging Configuration
+logging:
+  level:
+    com.phishing.orchestrator: INFO
+    org.springframework.web.client: DEBUG
